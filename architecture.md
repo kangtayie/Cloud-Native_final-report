@@ -1,7 +1,7 @@
 # 아키텍처
 
 > 실제 구현 상태에 맞춰 단계마다 갱신합니다. 보고서 제출용 구성도는 `architecture.drawio`(AWS 공식 아이콘)로 따로 만듭니다.
-> 현재 상태(2026-11-16): **1순위 완료.** S3 정적 웹(`http://local-speak-web-2026.s3-website.ap-northeast-2.amazonaws.com`) → API Gateway → 람다 2개 → Translate·Polly 전체 흐름 동작 확인 (한→폴란드어 번역·듣기, 헝가리어 듣기 비활성화).
+> 현재 상태(2026-11-16): **기능 구현 완료 (람다 5개, API 경로 7개).** S3 정적 웹(HTTPS 접속 `https://local-speak-web-2026.s3.ap-northeast-2.amazonaws.com/index.html`) → API Gateway → 람다 5개 → Transcribe·Translate·Bedrock·Polly 전체 흐름 동작 확인 (음성 입력 → 번역 → 발음 표기 → 듣기 → 따라 말하기 일치율).
 
 ## 구성도
 
@@ -104,7 +104,7 @@ flowchart LR
 | `POST /translate` | translate-lambda | Amazon Translate (+ Comprehend: 자동 감지 시) | `translate:TranslateText`, `comprehend:DetectDominantLanguage` | API 경유 호출 성공 (200) |
 | `POST /speak` | tts-lambda | Amazon Polly | `polly:SynthesizeSpeech`, `polly:DescribeVoices` | API 경유 호출 성공 (200, neural 음성 Ola) |
 | `POST /pronounce` | pronounce-lambda | Amazon Bedrock | `bedrock:InvokeModel` (Nova Lite 추론 프로필 `apac.amazon.nova-lite-v1:0` + 모델 ARN만) | API 경유 호출 성공 (2026-11-16) |
-| `POST /transcribe`, `GET /transcribe/{jobId}` | stt-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, 녹음 버킷 `stt/*`의 `s3:PutObject`·`s3:GetObject` | 코드 완성(`stt_lambda.py`), 미배포 |
+| `POST /transcribe`, `GET /transcribe/{jobId}` | stt-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, 녹음 버킷 `stt/*`의 `s3:PutObject`·`s3:GetObject` | 웹 화면 동작 확인 (2026-11-16) |
 | `POST /practice`, `GET /practice/{jobId}` | practice-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, 녹음 버킷 `practice/*`의 `s3:PutObject`·`s3:GetObject` | 웹 화면 동작 확인 (2026-11-16, 폴란드어 일치율 표시) |
 | `/cards` | cards-lambda | DynamoDB | `dynamodb:PutItem`, `dynamodb:Query` | 가상 |
 | 공통 | 모든 람다 | CloudWatch Logs | `AWSLambdaBasicExecutionRole` | - |
