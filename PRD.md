@@ -79,11 +79,11 @@
 ### 구현 단계 (순서 고정, 앞 단계가 동작한 뒤 다음으로)
 | 단계 | 기능 | AWS 서비스 | API | 상태 |
 |---|---|---|---|---|
-| 1 | 텍스트 번역 (언어 선택) | Translate | `POST /translate` | `lambdas/translate_lambda.py` 초안, 미배포 |
-| 1 | 원어민 발음 듣기 | Polly | `POST /speak` | `lambdas/tts_lambda.py` 초안, 미배포 |
-| 2 | 발음 표기 (로마자 + 한글) | Bedrock | `POST /pronounce` | 배포·API 호출 확인 (웹 화면 반영 중) |
+| 1 | 텍스트 번역 (언어 선택) | Translate | `POST /translate` | 완료 (2026-11-16) |
+| 1 | 원어민 발음 듣기 | Polly | `POST /speak` | 완료 (2026-11-16) |
+| 2 | 발음 표기 (로마자 + 한글) | Bedrock | `POST /pronounce` | 완료 (웹 화면 동작 확인 2026-11-16) |
 | 3 | 음성 입력 (자국어 STT) | Transcribe + S3 | `POST /transcribe`, `GET /transcribe/{jobId}` | 미착수 |
-| 4 | 따라 말하기 평가 | Transcribe + S3 | `POST /practice`, `GET /practice/{jobId}` | 미착수 |
+| 4 | 따라 말하기 평가 | Transcribe + S3 | `POST /practice`, `GET /practice/{jobId}` | 코드 완성, 배포 중 |
 | 5 | 상황별 문장 카드 저장 | DynamoDB | `POST /cards`, `GET /cards` | 3~4단계 완료 후 결정 |
 
 시간이 부족하면 뒤 단계는 **가상 아키텍처(점선)** 로 보고서에 표기한다 (과제 2번에서 허용).
@@ -120,7 +120,8 @@
 **F4. 음성 입력 (`/transcribe`)**
 - 브라우저 MediaRecorder로 녹음 → 음성을 S3 녹음 버킷에 업로드 → Transcribe 일괄(batch) 작업 시작
 - API Gateway 타임아웃(30초)을 피하려고 **비동기 패턴** 사용: `POST`는 jobId 반환, 프론트가 `GET /transcribe/{jobId}`를 폴링
-- 업로드 방식(presigned URL vs base64 본문)은 구현 시 결정. 기본은 presigned URL 권장
+- 업로드 방식: **base64 본문** (2026-11-16 결정). 녹음 최대 15초라 람다 요청 한도(6MB)에 충분하고, presigned URL 대비 버킷 CORS 설정·요청 왕복이 줄어듦
+- 마이크는 HTTPS 페이지에서만 허용 → S3 웹사이트 엔드포인트(HTTP) 대신 같은 버킷의 HTTPS 주소 `https://local-speak-web-2026.s3.ap-northeast-2.amazonaws.com/index.html`로 접속 (추가 리소스·비용 없음)
 - 녹음 형식은 Transcribe 지원 포맷이어야 함 (webm/ogg/mp4 등, 구현 시 실제 동작 확인)
 
 **F5. 따라 말하기 평가 (`/practice`)**
@@ -229,7 +230,7 @@
 ## 9. 미결정 사항
 - [x] 리전 최종 확정 → 서울 ap-northeast-2 (2026-11-13)
 - [x] Bedrock 모델 확정: Amazon Nova Lite (서울)
-- [ ] 녹음 업로드 방식 (presigned URL vs base64)
+- [x] 녹음 업로드 방식 → base64 본문 (2026-11-16)
 - [ ] 배포 방식 (콘솔 수동 vs IaC)
 - [ ] 서비스 이름
 - [ ] 5단계(문장 카드) 진행 여부

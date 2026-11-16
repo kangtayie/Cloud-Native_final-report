@@ -31,12 +31,14 @@ AWS 서버리스·MSA 구조의 음성 통역 + **따라 말하기 연습** 웹 
 ├─ lambdas/             ← 람다 1개 = 파일 1개
 │  ├─ translate_lambda.py   (배포됨)
 │  ├─ tts_lambda.py         (배포됨)
-│  └─ pronounce_lambda.py   (2단계)
+│  ├─ pronounce_lambda.py   (배포됨)
+│  └─ practice_lambda.py    (3순위 따라 말하기)
 ├─ frontend/
-│  └─ index.html        ← 화면 하나를 계속 발전시킴 (현재: 번역 + 발음 표기 + 듣기)
+│  └─ index.html        ← 화면 하나를 계속 발전시킴 (현재: 번역 + 발음 표기 + 듣기 + 따라 말하기)
 └─ docs/
    ├─ 배포가이드_1_번역_음성.md  ← 기능별 배포가이드를 여기에 추가
-   └─ 배포가이드_2_발음표기.md
+   ├─ 배포가이드_2_발음표기.md
+   └─ 배포가이드_3_따라말하기.md
 ```
 - 새 람다는 `lambdas/<기능>_lambda.py`, 배포가이드는 `docs/배포가이드_<번호>_<기능>.md`
 - 빈 `1단계/` 폴더가 남아 있으면 무시한다 (삭제 권한이 없어 남은 것)
