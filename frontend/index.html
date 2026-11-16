@@ -80,11 +80,39 @@
   footer { margin-top: 28px; text-align: center; font-size: 0.8rem; color: var(--muted); }
 
   /* 좁은 화면 임시 대응 (모바일 전용 디자인은 다음 단계) */
+  /* 태블릿·모바일: 좌우 두 칸 → 위아래로 쌓기 */
   @media (max-width: 860px) {
-    .topbar .tagline { display: none; }
     .panes, .practice { grid-template-columns: 1fr; }
     .pane + .pane { border-left: 0; border-top: 1px solid var(--line); border-radius: 0 0 20px 20px; }
     textarea, .translated { font-size: 1.3rem; }
+  }
+
+  /* 모바일 (폰) */
+  @media (max-width: 600px) {
+    .topbar { padding: 14px 16px 10px; }
+    .topbar img { height: 26px; }
+    .wrap { padding: 4px 12px 28px; }
+    .card { border-radius: 16px; }
+    .langbar { padding: 6px 8px; }
+    .langbar select { font-size: 1rem; max-width: 100%; }
+    .langbar .right { padding-left: 8px; }
+    .swap { padding: 6px 8px; }
+    .panes { min-height: 0; }
+    .pane { padding: 14px 16px 10px; }
+    .pane + .pane { border-radius: 0 0 16px 16px; }
+    #step2:has(#resultText:empty) { display: none; }  /* 번역 전에는 빈 결과 칸을 숨겨 화면을 아낌 */
+    textarea { min-height: 120px; font-size: 1.2rem; }   /* 16px 이상: iOS 입력 시 자동 확대 방지 */
+    .translated { font-size: 1.25rem; min-height: 1.6em; }
+    .pron .hangul { font-size: 1.05rem; }
+    .toolbar { margin-top: 8px; }
+    .icon { padding: 10px; }            /* 손가락으로 누르기 쉬운 크기 (약 46px) */
+    .icon svg { width: 26px; height: 26px; }
+    .practice { margin-top: 12px; padding: 16px; gap: 12px; text-align: center; }
+    .practice .icon.big { margin: 12px auto 0; }
+    .practice .note { text-align: center; }
+    .score { font-size: 2.2rem; }
+    .words { font-size: 1.05rem; }
+    footer { margin-top: 18px; padding: 0 8px; }
   }
 </style>
 </head>
