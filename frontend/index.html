@@ -125,7 +125,7 @@
     }
     // API Gateway 자체 오류(503 등)는 JSON이 아닐 수 있어서 파싱 실패도 처리
     const data = await res.json().catch(() => ({}));
-    // 429 = API Gateway 스로틀링(초당 1건, 버스트 2)에 걸린 경우. 비용 상한을 위해 일부러 낮게 잡음
+    // 429 = API Gateway 스로틀링(초당 2건, 버스트 5)에 걸린 경우. 남용 시 비용 상한을 위해 낮게 잡음
     if (res.status === 429) throw new Error("요청이 많아요. 잠시 후 다시 시도해 주세요.");
     if (!res.ok) throw new Error(data.error || `요청 실패 (HTTP ${res.status})`);
     return data;
@@ -267,7 +267,7 @@
     try {
       const audio = await blobToBase64(blob);
       const { jobId } = await post("/practice", { audio, mime: blob.type, text: target.text, lang: target.lang });
-      // 인식은 비동기 작업이라 3초마다 결과 확인 (스로틀링 초당 1건에 걸리지 않는 간격)
+      // 인식은 비동기 작업이라 3초마다 결과 확인 (스로틀링 한도를 넉넉히 밑도는 간격)
       for (let i = 0; i < 30; i++) {
         await new Promise(r => setTimeout(r, 3000));
         if (target !== lastTranslation) return;
