@@ -41,7 +41,7 @@
   .pane + .pane { border-left: 1px solid var(--line); background: #fbfdff; border-radius: 0 0 20px 0; }
   textarea { flex: 1; width: 100%; min-height: 220px; border: 0; resize: none; font: inherit; font-size: 1.6rem; line-height: 1.4; color: var(--ink); background: transparent; }
   textarea:focus { outline: none; }
-  textarea::placeholder { color: #94a3b8; }
+  textarea::placeholder { color: #94a3b8; letter-spacing: -0.04em; }
   .toolbar { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
   .toolbar .spacer { flex: 1; }
   .count { color: #94a3b8; font-size: 0.85rem; }
@@ -61,7 +61,6 @@
 
   /* 결과 칸: 번역문 크게, 그 아래 발음을 연한 글씨로 */
   .translated { flex: none; font-size: 1.6rem; line-height: 1.4; font-weight: 500; word-break: break-word; min-height: 2.2em; }
-  .translated:empty::before { content: "번역 결과가 여기에 나와요"; color: #94a3b8; }
   .pron { margin-top: 10px; display: grid; gap: 4px; }
   .pron .hangul { font-size: 1.15rem; color: #475569; }
   .pron .roman { font-size: 1rem; color: #94a3b8; }
@@ -93,7 +92,6 @@
 <body>
   <header class="topbar">
     <img src="logo.png" alt="OverSpeak">
-    <span class="tagline">해외에서, 번역기 대신 내 입으로 직접 말하기</span>
   </header>
 
   <main class="wrap">
