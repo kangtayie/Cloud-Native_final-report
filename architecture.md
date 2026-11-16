@@ -55,10 +55,10 @@ flowchart LR
   L1 & L2 & L3 & L4 & L5 --> CW
 
   CF["CloudFront + HTTPS"]:::virtual
-  COG["Cognito 로그인"]:::virtual
+  WAF["WAF 웹 방화벽"]:::virtual
   STR["Transcribe 실시간 스트리밍"]:::virtual
   U -.-> CF -.-> S3W
-  U -.-> COG
+  U -.-> WAF
   L4 -.-> STR
 
   class L6,DDB virtual

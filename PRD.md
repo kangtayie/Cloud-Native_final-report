@@ -218,7 +218,7 @@
 
 ### 구성도 스타일 (제출용, FigJam으로 작성 — 2026-11-16 draw.io에서 변경)
 - AWS 공식 아키텍처 아이콘 (AWS Architecture Icons 패키지의 SVG)
-- 가상 요소(점선)는 실제로 겪은 한계와 연결된 것만: 엣지·보안(Route 53, CloudFront, ACM, WAF), 인증(Cognito), CI/CD(CodePipeline, CodeBuild, CloudFormation), 기능 확장(DynamoDB 문장 카드). GitHub 레포는 실제로 있으므로 실선
+- 가상 요소(점선)는 실제로 겪은 한계와 연결된 것만: 엣지·보안 확장(CloudFront, ACM, WAF — 2026-11-17 Route 53·Cognito는 겪은 문제와 연결이 약해 제외), CI/CD(CodePipeline, CodeBuild, CloudFormation), 기능 확장(DynamoDB 문장 카드). GitHub 레포는 실제로 있으므로 실선. 실제 구현한 보안(IAM 최소 권한, S3 퍼블릭 차단·SSE-S3·1일 삭제, 폴더 권한 분리, 스로틀링, 입력 검증)은 범례 옆에 실선 항목으로 따로 정리
 - 역할별 색상 그룹 박스: ① 사용자·프론트(S3 웹) ② API·MSA(API Gateway + 람다들) ③ AWS AI 서비스(Translate·Polly·Transcribe·Bedrock) ④ 저장소(S3 녹음 버킷, 가상: DynamoDB) ⑤ 모니터링·비용(CloudWatch, Budgets)
 - 아이콘 아래 서비스명 + 한국어 한 줄 역할
 - **구현 = 실선 / 가상 = 점선 + 회색**, 범례 필수 (가상 후보: CloudFront+HTTPS, Cognito 로그인, 실시간 스트리밍 STT, 문장 카드 DynamoDB, WAF)
