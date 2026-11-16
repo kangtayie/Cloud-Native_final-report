@@ -27,7 +27,7 @@ flowchart LR
   subgraph AI["③ AWS AI 서비스"]
     TR["Amazon Translate<br/>번역"]
     PO["Amazon Polly<br/>원어민 음성 합성"]
-    BR["Amazon Bedrock<br/>로마자·한글 발음 표기"]
+    BR["Amazon Bedrock (Nova Lite)<br/>로마자·한글 발음 표기"]
     TS["Amazon Transcribe<br/>음성 인식"]
   end
 
@@ -78,7 +78,7 @@ flowchart LR
 
 **발음 표기 (2단계)**
 1. 번역 결과가 나오면 브라우저가 `POST /pronounce`를 **따로** 호출한다 (번역 결과 표시는 기다리지 않음).
-2. `pronounce-lambda`가 Bedrock Converse API로 저가 모델을 호출 (모델은 환경 변수 `MODEL_ID`, 출력 토큰 제한).
+2. `pronounce-lambda`가 Bedrock Converse API로 Amazon Nova Lite를 호출 (모델은 환경 변수 `MODEL_ID`, 출력 토큰 제한).
 3. 모델이 돌려준 JSON에서 로마자·한글 발음만 꺼내 응답 → 번역문 아래에 표시.
 4. 실패해도 번역·듣기는 그대로 동작한다 (람다·경로가 분리된 **장애 격리**). 같은 문장은 브라우저 캐시로 재호출하지 않는다.
 
@@ -88,7 +88,7 @@ flowchart LR
 |---|---|---|---|---|
 | `POST /translate` | translate-lambda | Amazon Translate (+ Comprehend: 자동 감지 시) | `translate:TranslateText`, `comprehend:DetectDominantLanguage` | API 경유 호출 성공 (200) |
 | `POST /speak` | tts-lambda | Amazon Polly | `polly:SynthesizeSpeech`, `polly:DescribeVoices` | API 경유 호출 성공 (200, neural 음성 Ola) |
-| `POST /pronounce` | pronounce-lambda | Amazon Bedrock | `bedrock:InvokeModel` (특정 모델·추론 프로필 ARN) | 코드 완성(`pronounce_lambda.py`), 미배포 |
+| `POST /pronounce` | pronounce-lambda | Amazon Bedrock | `bedrock:InvokeModel` (Nova Lite 추론 프로필 `apac.amazon.nova-lite-v1:0` + 모델 ARN만) | API 경유 호출 성공 (2026-11-16) |
 | `POST /transcribe`, `GET /transcribe/{jobId}` | stt-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, `s3:PutObject`, `s3:GetObject` | 미착수 |
 | `POST /practice`, `GET /practice/{jobId}` | practice-lambda | Amazon Transcribe, S3 녹음 버킷 | 위와 동일 | 미착수 |
 | `/cards` | cards-lambda | DynamoDB | `dynamodb:PutItem`, `dynamodb:Query` | 가상 |

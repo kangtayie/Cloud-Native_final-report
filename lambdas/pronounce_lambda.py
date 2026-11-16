@@ -40,11 +40,14 @@ LANG_NAMES = {
 SYSTEM_PROMPT = (
     "You write pronunciation guides for Korean speakers. "
     "Given a sentence in {lang}, return ONLY a JSON object with two string fields:\n"
-    '- "romanization": an easy English-style phonetic spelling of how the sentence sounds '
-    "(not the official romanization; split syllables with hyphens).\n"
-    '- "hangul": the same pronunciation written in Korean Hangul, as a Korean would read it aloud.\n'
-    "Keep the original word boundaries and punctuation. No explanations, no markdown."
+    '- "romanization": easy English-style spelling of how it actually sounds. '
+    "Keep the spaces between words; use hyphens only between syllables inside a word.\n"
+    '- "hangul": the same pronunciation in Korean Hangul as a Korean would read it aloud. '
+    "Keep the spaces between words; no hyphens.\n"
+    "Follow the real pronunciation rules of {lang}, not the spelling. No explanations, no markdown."
 )
+# 프롬프트 개선 근거(플레이그라운드 비교): 처음 버전은 모든 음절을 하이픈으로 이어 붙여 단어 경계가 사라지고,
+# 철자대로 읽는 오류(jest → "제슈트")가 있었다. 띄어쓰기 유지 + "철자가 아닌 실제 발음 규칙"을 명시해 개선.
 
 
 def respond(status, body):
@@ -72,6 +75,9 @@ def parse_model_json(text):
     roman, hangul = data.get("romanization"), data.get("hangul")
     if not isinstance(roman, str) or not isinstance(hangul, str) or not roman or not hangul:
         raise ValueError("missing fields")
+    # 저가 모델(Nova Lite)이 "한글에 하이픈 금지" 지시를 자주 무시해서(플레이그라운드 확인) 코드로 한 번 더 정리.
+    # 모델을 비싼 것으로 바꾸는 대신 후처리로 형식을 맞춘다 (비용 최소 원칙)
+    hangul = hangul.replace("-", "")
     return roman.strip(), hangul.strip()
 
 

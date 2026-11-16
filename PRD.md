@@ -81,7 +81,7 @@
 |---|---|---|---|---|
 | 1 | 텍스트 번역 (언어 선택) | Translate | `POST /translate` | `lambdas/translate_lambda.py` 초안, 미배포 |
 | 1 | 원어민 발음 듣기 | Polly | `POST /speak` | `lambdas/tts_lambda.py` 초안, 미배포 |
-| 2 | 발음 표기 (로마자 + 한글) | Bedrock | `POST /pronounce` | 미착수 |
+| 2 | 발음 표기 (로마자 + 한글) | Bedrock | `POST /pronounce` | 배포·API 호출 확인 (웹 화면 반영 중) |
 | 3 | 음성 입력 (자국어 STT) | Transcribe + S3 | `POST /transcribe`, `GET /transcribe/{jobId}` | 미착수 |
 | 4 | 따라 말하기 평가 | Transcribe + S3 | `POST /practice`, `GET /practice/{jobId}` | 미착수 |
 | 5 | 상황별 문장 카드 저장 | DynamoDB | `POST /cards`, `GET /cards` | 3~4단계 완료 후 결정 |
@@ -114,7 +114,7 @@
 
 **F3. 발음 표기 (`/pronounce`)**
 - 입력 `{text, lang}` → 출력 `{romanization, hangul}`
-- Bedrock 저가 모델(Claude Haiku 계열 등, 리전 가용성 확인 후 확정), JSON만 출력하도록 프롬프트 고정, max tokens 작게
+- Bedrock 모델: **Amazon Nova Lite** (2026-11-16 확정, 가장 저렴: 1회 약 $0.00006, 1,000회 약 $0.06). Nova Pro가 발음 정확도는 더 높았지만(1,000회 약 $0.81) 비용 최소 원칙으로 Nova Lite 선택, Claude Haiku 5.5는 계정 미허용. 한계: 발음 표기가 부정확할 수 있어 화면에 "AI 참고용" 안내. JSON만 출력하도록 프롬프트 고정, max tokens 작게
 - 실패해도 번역·음성은 정상 동작해야 함 (장애 격리)
 
 **F4. 음성 입력 (`/transcribe`)**
@@ -228,7 +228,7 @@
 
 ## 9. 미결정 사항
 - [x] 리전 최종 확정 → 서울 ap-northeast-2 (2026-11-13)
-- [ ] Bedrock 모델 ID 확정 (리전 가용성 확인)
+- [x] Bedrock 모델 확정: Amazon Nova Lite (서울)
 - [ ] 녹음 업로드 방식 (presigned URL vs base64)
 - [ ] 배포 방식 (콘솔 수동 vs IaC)
 - [ ] 서비스 이름
