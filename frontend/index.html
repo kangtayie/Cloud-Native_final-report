@@ -112,11 +112,17 @@
   async function post(path, payload) { return request("POST", path, payload); }
 
   async function request(method, path, payload) {
-    const res = await fetch(API_BASE + path, method === "GET" ? {} : {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    let res;
+    // 429(스로틀링)는 잠깐 기다렸다가 최대 2번 다시 시도. 스로틀링에 걸린 요청은 람다까지 가지 않아 비용이 없음
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt) await new Promise(r => setTimeout(r, 1500 * attempt));
+      res = await fetch(API_BASE + path, method === "GET" ? {} : {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.status !== 429) break;
+    }
     // API Gateway 자체 오류(503 등)는 JSON이 아닐 수 있어서 파싱 실패도 처리
     const data = await res.json().catch(() => ({}));
     // 429 = API Gateway 스로틀링(초당 1건, 버스트 2)에 걸린 경우. 비용 상한을 위해 일부러 낮게 잡음

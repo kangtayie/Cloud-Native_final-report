@@ -83,7 +83,7 @@
 | 1 | 원어민 발음 듣기 | Polly | `POST /speak` | 완료 (2026-11-16) |
 | 2 | 발음 표기 (로마자 + 한글) | Bedrock | `POST /pronounce` | 완료 (웹 화면 동작 확인 2026-11-16) |
 | 3 | 음성 입력 (자국어 STT) | Transcribe + S3 | `POST /transcribe`, `GET /transcribe/{jobId}` | 미착수 |
-| 4 | 따라 말하기 평가 | Transcribe + S3 | `POST /practice`, `GET /practice/{jobId}` | 코드 완성, 배포 중 |
+| 4 | 따라 말하기 평가 | Transcribe + S3 | `POST /practice`, `GET /practice/{jobId}` | 완료 (웹 화면 동작 확인 2026-11-16) |
 | 5 | 상황별 문장 카드 저장 | DynamoDB | `POST /cards`, `GET /cards` | 3~4단계 완료 후 결정 |
 
 시간이 부족하면 뒤 단계는 **가상 아키텍처(점선)** 로 보고서에 표기한다 (과제 2번에서 허용).
