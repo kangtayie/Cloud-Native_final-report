@@ -1,6 +1,6 @@
 # 아키텍처
 
-> 실제 구현 상태에 맞춰 단계마다 갱신합니다. 보고서 제출용 구성도는 `architecture.drawio`(AWS 공식 아이콘)로 따로 만듭니다.
+> 실제 구현 상태에 맞춰 단계마다 갱신합니다. 보고서 제출용 구성도는 FigJam(AWS 공식 아이콘)으로 따로 만듭니다.
 > 현재 상태(2026-11-16): **기능 구현 완료 (람다 5개, API 경로 7개).** S3 정적 웹(HTTPS 접속 `https://local-speak-web-2026.s3.ap-northeast-2.amazonaws.com/index.html`) → API Gateway → 람다 5개 → Transcribe·Translate·Bedrock·Polly 전체 흐름 동작 확인 (음성 입력 → 번역 → 발음 표기 → 듣기 → 따라 말하기 일치율).
 
 ## 구성도

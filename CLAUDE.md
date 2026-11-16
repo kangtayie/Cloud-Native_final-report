@@ -27,7 +27,6 @@
 ├─ CLAUDE.md            ← 이 파일
 ├─ PRD.md               ← 요구사항 문서 (기준 문서)
 ├─ architecture.md      ← 구성도 Mermaid 초안 + 경로·람다·권한 표 (Claude Code가 만들고 갱신)
-├─ architecture.drawio  ← 보고서 제출용 구성도 (AWS 공식 아이콘, draw.io)
 ├─ lambdas/             ← 람다 1개 = 파일 1개
 │  ├─ translate_lambda.py   (배포됨)
 │  ├─ tts_lambda.py         (배포됨)
@@ -77,8 +76,8 @@ PRD의 "마감 대응 우선순위" 순서를 지킨다. 앞 기능이 배포·�
 
 ### 5. 아키텍처 문서 유지
 - `architecture.md`에 **Mermaid(flowchart LR)** 로 구성도 내용을 관리한다. 단계가 끝날 때마다 실제 구현 상태에 맞게 갱신한다.
-- 보고서 제출용은 `architecture.drawio`로 만든다. 스타일 기준은 PRD 8장 "구성도 스타일"을 따른다.
-  - AWS 공식 아키텍처 아이콘 (draw.io `mxgraph.aws4` 도형)
+- 보고서 제출용 구성도는 **FigJam**(피그마)으로 만든다 (2026-11-16 draw.io에서 변경). 스타일 기준은 PRD 8장 "구성도 스타일"을 따른다. 내보낸 PNG는 `docs/images/`에 둔다.
+  - AWS 공식 아키텍처 아이콘 (AWS Architecture Icons 패키지의 SVG)
   - 역할별 그룹 박스 (예: 프론트/엔트리, API·MSA, AI 서비스, 저장소, 모니터링·보안)
   - 각 아이콘 아래 서비스명 + 한 줄 역할 설명 (한국어)
   - 구성도 옆에 **번호 매긴 요청 흐름 설명** (1. 사용자 → 2. … → n. 응답)

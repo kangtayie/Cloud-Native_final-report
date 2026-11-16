@@ -95,7 +95,7 @@
 | 2 | 발음 표기(Bedrock) | 번역 결과 아래 로마자·한글 표기 표시 |
 | 3 | 따라 말하기 (녹음 → 현지어 인식 → 일치율) | **차별점 핵심, 반드시 구현** |
 | 4 | 음성 입력(자국어 STT) | 3에서 만든 인식 구조 재사용 |
-| 5 | 구성도(draw.io) + 보고서 | 늦어도 11/16부터 병행 |
+| 5 | 구성도(FigJam) + 보고서 | 늦어도 11/16부터 병행 |
 | 6 | **README.md 작성 (맨 마지막, 잊지 말 것)** | 서비스·작업이 모두 끝난 뒤 작성. 서비스 소개, 제출 링크(S3·API), 아키텍처, 경로-람다 표, 사용 AWS 서비스, 배포 방법. 공개 규칙(개인정보·계정 ID 금지) 점검 후 커밋 |
 | - | 문장 카드(DynamoDB) | **가상 아키텍처로만 표기** |
 
@@ -216,8 +216,9 @@
 | 3. 엔드포인트 | S3 링크 + API 링크, 경로별 람다 매핑 표 |
 | 4. 미래 방향·후기 | 서버리스/MSA, 관리형 AI 서비스 조합, 비용 관리 경험 |
 
-### 구성도 스타일 (제출용 `architecture.drawio`)
-- AWS 공식 아키텍처 아이콘 (draw.io `mxgraph.aws4` 도형)
+### 구성도 스타일 (제출용, FigJam으로 작성 — 2026-11-16 draw.io에서 변경)
+- AWS 공식 아키텍처 아이콘 (AWS Architecture Icons 패키지의 SVG)
+- 가상 요소(점선)는 실제로 겪은 한계와 연결된 것만: 엣지·보안(Route 53, CloudFront, ACM, WAF), 인증(Cognito), CI/CD(CodePipeline, CodeBuild, CloudFormation), 기능 확장(DynamoDB 문장 카드). GitHub 레포는 실제로 있으므로 실선
 - 역할별 색상 그룹 박스: ① 사용자·프론트(S3 웹) ② API·MSA(API Gateway + 람다들) ③ AWS AI 서비스(Translate·Polly·Transcribe·Bedrock) ④ 저장소(S3 녹음 버킷, 가상: DynamoDB) ⑤ 모니터링·비용(CloudWatch, Budgets)
 - 아이콘 아래 서비스명 + 한국어 한 줄 역할
 - **구현 = 실선 / 가상 = 점선 + 회색**, 범례 필수 (가상 후보: CloudFront+HTTPS, Cognito 로그인, 실시간 스트리밍 STT, 문장 카드 DynamoDB, WAF)
