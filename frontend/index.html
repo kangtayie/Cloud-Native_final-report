@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>현지어 말하기 도우미</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Malgun Gothic", sans-serif; max-width: 640px; margin: 32px auto; padding: 0 16px; color: #1f2328; }
+  h1 { font-size: 1.4rem; }
+  label { display: block; font-weight: 600; margin: 16px 0 6px; }
+  textarea, select { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #c9ced6; border-radius: 8px; box-sizing: border-box; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  button { margin-top: 16px; padding: 10px 18px; font-size: 1rem; border: 0; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; }
+  button:disabled { background: #9ca3af; cursor: not-allowed; }
+  .result { margin-top: 24px; padding: 16px; border-radius: 8px; background: #f3f4f6; min-height: 24px; }
+  .translated { font-size: 1.3rem; font-weight: 600; }
+  .note { font-size: 0.85rem; color: #6b7280; margin-top: 8px; }
+  .pron { margin-top: 10px; line-height: 1.6; }
+  .pron .tag { display: inline-block; min-width: 72px; font-size: 0.8rem; color: #6b7280; }
+  .pron .hangul { font-size: 1.1rem; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>현지어 말하기 도우미</h1>
+  <p class="note">번역 · 발음 표기 · 원어민 발음 듣기 (Amazon Translate · Amazon Bedrock · Amazon Polly)</p>
+
+  <div class="row">
+    <div>
+      <label for="source">내 언어</label>
+      <select id="source"></select>
+    </div>
+    <div>
+      <label for="target">현지 언어</label>
+      <select id="target"></select>
+    </div>
+  </div>
+
+  <label for="textInput">말하고 싶은 문장</label>
+  <textarea id="textInput" rows="3" placeholder="예) 기숙사 행정실이 어디에 있나요?"></textarea>
+
+  <button id="translateBtn">번역하기</button>
+
+  <div class="result">
+    <div id="resultText" class="translated"></div>
+    <div id="pron" class="pron" hidden>
+      <div><span class="tag">영어식 발음</span><span id="romanization"></span></div>
+      <div><span class="tag">한글 발음</span><span id="hangul" class="hangul"></span></div>
+    </div>
+    <div id="pronNote" class="note"></div>
+    <button id="listenBtn" disabled>원어민 발음 듣기</button>
+    <div id="listenNote" class="note"></div>
+  </div>
+
+<script>
+  // API Gateway(HTTP API) $default 스테이지 호출 URL (끝에 / 없이)
+  const API_BASE = "https://okkwmmuwl5.execute-api.ap-northeast-2.amazonaws.com";
+
+  // 지원 언어: 파파고 지원 14개 + 동유럽(폴란드어·체코어·루마니아어 완전 지원, 헝가리어 부분 지원)
+  // tts: Amazon Polly 원어민 음성 지원 여부
+  const LANGS = [
+    { code: "ko", name: "한국어", tts: true },
+    { code: "en", name: "영어", tts: true },
+    { code: "ja", name: "일본어", tts: true },
+    { code: "zh", name: "중국어(간체)", tts: true },
+    { code: "zh-TW", name: "중국어(번체)", tts: true },
+    { code: "es", name: "스페인어", tts: true },
+    { code: "fr", name: "프랑스어", tts: true },
+    { code: "de", name: "독일어", tts: true },
+    { code: "ru", name: "러시아어", tts: true },
+    { code: "it", name: "이탈리아어", tts: true },
+    { code: "ar", name: "아랍어", tts: true },
+    { code: "vi", name: "베트남어", tts: false },
+    { code: "th", name: "태국어", tts: false },
+    { code: "id", name: "인도네시아어", tts: false },
+    { code: "pl", name: "폴란드어", tts: true },
+    { code: "cs", name: "체코어", tts: true },
+    { code: "ro", name: "루마니아어", tts: true },
+    { code: "hu", name: "헝가리어", tts: false },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const sourceSel = $("source"), targetSel = $("target");
+  LANGS.forEach(l => {
+    sourceSel.add(new Option(l.name, l.code));
+    targetSel.add(new Option(l.name, l.code));
+  });
+  sourceSel.value = "ko";
+  targetSel.value = "pl";
+
+  let lastTranslation = null;
+
+  async function post(path, payload) {
+    const res = await fetch(API_BASE + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    // API Gateway 자체 오류(503 등)는 JSON이 아닐 수 있어서 파싱 실패도 처리
+    const data = await res.json().catch(() => ({}));
+    // 429 = API Gateway 스로틀링(초당 1건, 버스트 2)에 걸린 경우. 비용 상한을 위해 일부러 낮게 잡음
+    if (res.status === 429) throw new Error("요청이 많아요. 잠시 후 다시 시도해 주세요.");
+    if (!res.ok) throw new Error(data.error || `요청 실패 (HTTP ${res.status})`);
+    return data;
+  }
+
+  $("translateBtn").onclick = async () => {
+    const text = $("textInput").value.trim();
+    if (!text) return;
+    const target = targetSel.value;
+    // 같은 언어끼리는 번역 API를 부르지 않음 (불필요한 호출 = 불필요한 비용)
+    if (sourceSel.value === target) {
+      $("resultText").textContent = "내 언어와 현지 언어를 다르게 골라주세요.";
+      return;
+    }
+    $("resultText").textContent = "번역 중...";
+    $("listenBtn").disabled = true;
+    $("listenNote").textContent = "";
+    $("pron").hidden = true;
+    $("pronNote").textContent = "";
+    try {
+      const data = await post("/translate", { text, source: sourceSel.value, target });
+      lastTranslation = { text: data.translatedText, lang: target };
+      $("resultText").textContent = data.translatedText;
+      const ttsOk = LANGS.find(l => l.code === target)?.tts;
+      $("listenBtn").disabled = !ttsOk;
+      if (!ttsOk) $("listenNote").textContent = "이 언어는 아직 원어민 음성을 지원하지 않아요 (Amazon Polly 미지원).";
+      loadPronunciation(data.translatedText, target);  // 기다리지 않음: 번역 결과는 바로 보여줌
+    } catch (e) {
+      $("resultText").textContent = "오류: " + e.message;
+    }
+  };
+
+  // 발음 표기 (Bedrock). 별도 람다라서 실패해도 번역·듣기는 그대로 동작 (장애 격리)
+  const pronCache = new Map();  // 같은 문장은 Bedrock을 다시 부르지 않음 (토큰당 과금)
+  async function loadPronunciation(text, lang) {
+    $("pron").hidden = true;
+    $("pronNote").textContent = "";
+    if (lang === "ko") return;  // 한국어는 발음 표기가 필요 없음
+    if (text.length > 300) {
+      $("pronNote").textContent = "발음 표기는 300자 이하 문장만 지원해요.";
+      return;
+    }
+    const key = lang + "|" + text;
+    $("pronNote").textContent = "발음 표기 만드는 중...";
+    try {
+      if (!pronCache.has(key)) pronCache.set(key, await post("/pronounce", { text, lang }));
+      if (lastTranslation?.text !== text) return;  // 그사이 다른 문장을 번역했으면 무시
+      const p = pronCache.get(key);
+      $("romanization").textContent = p.romanization;
+      $("hangul").textContent = p.hangul;
+      $("pron").hidden = false;
+      $("pronNote").textContent = "발음 표기는 AI(Amazon Bedrock)가 만든 참고용이에요.";
+    } catch (e) {
+      if (lastTranslation?.text === text) $("pronNote").textContent = "발음 표기를 불러오지 못했어요: " + e.message;
+    }
+  }
+
+  $("listenBtn").onclick = async () => {
+    if (!lastTranslation) return;
+    $("listenBtn").disabled = true;
+    $("listenNote").textContent = "음성 생성 중...";
+    try {
+      // 같은 문장은 다시 Polly를 부르지 않고 저장해 둔 음성을 재생 (Polly는 글자 수로 과금)
+      if (!lastTranslation.audio) {
+        const data = await post("/speak", { text: lastTranslation.text, lang: lastTranslation.lang });
+        lastTranslation.audio = data.audio;
+        lastTranslation.voiceInfo = `목소리: ${data.voice} (${data.engine})`;
+      }
+      await new Audio("data:audio/mpeg;base64," + lastTranslation.audio).play();
+      $("listenNote").textContent = lastTranslation.voiceInfo;
+    } catch (e) {
+      $("listenNote").textContent = "오류: " + e.message;
+    } finally {
+      $("listenBtn").disabled = false;
+    }
+  };
+</script>
+</body>
+</html>
