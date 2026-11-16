@@ -3,7 +3,7 @@
 클라우드네이티브 기말과제 프로젝트. 작업 전에 **`PRD.md`를 먼저 읽을 것** (서비스 정의, 기능 단계, API, 아키텍처, 제약이 모두 들어 있음).
 
 ## 프로젝트 한 줄 요약
-AWS 서버리스·MSA 구조의 음성 통역 + **따라 말하기 연습** 웹 서비스. 교재 8.6(S3 → API Gateway → Lambda → Translate)을 확장해서 Polly(TTS), Transcribe(STT), Bedrock(발음 표기)을 붙인다.
+서비스명: **OverSpeak** (oversea + speak). AWS 서버리스·MSA 구조의 음성 통역 + **따라 말하기 연습** 웹 서비스. 교재 8.6(S3 → API Gateway → Lambda → Translate)을 확장해서 Polly(TTS), Transcribe(STT), Bedrock(발음 표기)을 붙인다.
 
 ## 🚨 최우선 규칙: 문서와 어긋나면 멈추고 먼저 말할 것
 이 `CLAUDE.md`와 `PRD.md`에 적힌 결정·규칙과 **어긋나는 일을 하게 될 때는 실행하기 전에 반드시 사용자에게 알리고 확인을 받는다.** 사용자가 직접 요청한 경우도 마찬가지다.
