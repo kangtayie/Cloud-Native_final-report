@@ -69,7 +69,9 @@
   .note { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
 
   /* 따라 말하기 카드 */
-  .practice { margin-top: 20px; padding: 22px 24px; display: grid; grid-template-columns: 280px 1fr; gap: 28px; align-items: start; }
+  /* 위 번역기와 같은 좌우 반반 → 결과(오른쪽)가 번역문 칸과 같은 세로선에서 시작 */
+  .practice { margin-top: 20px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+  .practice > div { padding: 22px 24px; }
   .practice h2 { margin: 0 0 6px; font-size: 1.15rem; }
   .practice .mic { width: 100%; padding: 14px; font-size: 1.05rem; margin-top: 12px; }
   .score { font-size: 2.6rem; font-weight: 800; color: var(--sky); line-height: 1.1; }
@@ -107,7 +109,9 @@
     .toolbar { margin-top: 8px; }
     .icon { padding: 10px; }            /* 손가락으로 누르기 쉬운 크기 (약 46px) */
     .icon svg { width: 26px; height: 26px; }
-    .practice { margin-top: 12px; padding: 16px; gap: 12px; text-align: center; }
+    .practice { margin-top: 12px; text-align: center; }
+    .practice > div { padding: 14px 16px; }
+    .practice > div + div { padding-top: 0; }
     .practice .icon.big { margin: 12px auto 0; }
     .practice .note { text-align: center; }
     .score { font-size: 2.2rem; }
@@ -441,7 +445,7 @@
       const res = await pollJob("/practice", jobId, () => target !== lastTranslation);
       if (!res) return;
       showPracticeResult(res);
-      $("practiceNote").textContent = "음성 인식기(원어민 기준)가 알아들은 정도예요. 억양·강세 점수는 아니에요.";
+      $("practiceNote").textContent = "";
     } catch (e) {
       if (target === lastTranslation) $("practiceNote").textContent = "오류: " + e.message;
     } finally {
