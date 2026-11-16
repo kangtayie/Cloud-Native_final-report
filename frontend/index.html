@@ -77,7 +77,6 @@
   .words span { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 10px; border-radius: 8px; }
   .words .ok { background: var(--ok-bg); color: var(--ok); }
   .words .ng { background: var(--ng-bg); color: var(--ng); text-decoration: underline wavy; }
-  .placeholder { color: #94a3b8; padding-top: 8px; }
   footer { margin-top: 28px; text-align: center; font-size: 0.8rem; color: var(--muted); }
 
   /* 좁은 화면 임시 대응 (모바일 전용 디자인은 다음 단계) */
@@ -141,7 +140,7 @@
     <!-- 따라 말하기: 녹음 → 현지어 인식 → 일치율 -->
     <section class="card practice" id="practice" hidden>
       <div>
-        <h2>🎯 따라 말해 보기</h2>
+        <h2>연습하기</h2>
         <div class="note" style="margin-top:0">원어민 발음을 듣고 똑같이 말해 보세요. 최대 15초, 다시 누르면 녹음이 끝나요.</div>
         <button id="recBtn" class="icon big" title="녹음 시작 / 끝내기" aria-label="녹음 시작">
           <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/><path d="M8 21h8"/></svg>
@@ -149,7 +148,6 @@
         <div id="practiceNote" class="note"></div>
       </div>
       <div>
-        <div class="placeholder" id="practiceEmpty">녹음하면 원어민 기준으로 얼마나 알아들을 수 있는지 보여드려요.</div>
         <div id="practiceResult" hidden>
           <div class="score" id="scoreText"></div>
           <div class="words" id="wordsBox"></div>
@@ -394,7 +392,6 @@
     if (activeRecorder && activeRecorder.state === "recording") activeRecorder.stop();
     $("practice").hidden = !show;
     $("practiceResult").hidden = true;
-    $("practiceEmpty").hidden = false;
     $("practiceNote").textContent = "";
     $("recBtn").disabled = false;
   }
@@ -436,7 +433,6 @@
     });
     $("heardText").textContent = "인식된 문장: " + (res.heard || "(인식된 말이 없어요)");
     $("practiceResult").hidden = false;
-    $("practiceEmpty").hidden = true;
   }
 </script>
 </body>
