@@ -12,6 +12,7 @@
     --ok-bg: #dcfce7; --ok: #166534; --ng-bg: #fee2e2; --ng: #991b1b;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }  /* display:grid 등이 hidden 속성을 덮어쓰지 않게 */
   body {
     margin: 0; color: var(--ink); min-height: 100vh;
     font-family: "Pretendard", system-ui, -apple-system, "Malgun Gothic", sans-serif;
@@ -49,6 +50,12 @@
   .mic.recording { background: #dc2626; animation: pulse 1.2s infinite; }
   @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0.15); } }
   .ghost { background: var(--sky-soft); color: var(--sky); }
+  /* 아이콘 버튼: 배경 없이 검정 선 아이콘, 마우스를 올리면 연한 원 */
+  .icon { background: transparent; color: #111827; padding: 8px; border-radius: 50%; line-height: 0; }
+  .icon svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .icon:hover:not(:disabled) { background: #f1f5f9; }
+  .icon:disabled { background: transparent; color: #cbd5e1; }
+  .icon.recording { color: #dc2626; background: #fee2e2; animation: pulse 1.2s infinite; }
 
   /* 결과 칸: 번역문 크게, 그 아래 발음을 연한 글씨로 */
   .translated { flex: none; font-size: 1.6rem; line-height: 1.4; font-weight: 500; word-break: break-word; min-height: 2.2em; }
@@ -97,13 +104,18 @@
       </div>
       <div class="panes">
         <div class="pane">
-          <textarea id="textInput" maxlength="1000" placeholder="하고 싶은 말을 입력하거나 🎤로 말해 보세요&#10;예) 화장실이 어디예요?"></textarea>
+          <textarea id="textInput" maxlength="1000" placeholder="번역할 내용을 입력하세요"></textarea>
           <div class="note" id="sttNote"></div>
           <div class="toolbar">
-            <button id="sttBtn" class="mic">🎤 말로 입력</button>
+            <!-- 아이콘 버튼: 글자 대신 검정 선 아이콘, 의미는 title·aria-label로 전달 -->
+            <button id="sttBtn" class="icon" title="말로 입력" aria-label="말로 입력">
+              <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/><path d="M8 21h8"/></svg>
+            </button>
             <span class="spacer"></span>
             <span class="count" id="charCount">0 / 1000</span>
-            <button id="translateBtn">번역하기</button>
+            <button id="translateBtn" class="icon" title="번역하기 (Ctrl+Enter)" aria-label="번역하기">
+              <svg viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg>
+            </button>
           </div>
         </div>
         <div class="pane" id="step2">
@@ -116,7 +128,9 @@
             <div id="pronNote" class="note"></div>
           </div>
           <div class="toolbar">
-            <button id="listenBtn" class="ghost" disabled>🔊 원어민 발음 듣기</button>
+            <button id="listenBtn" class="icon" title="원어민 발음 듣기" aria-label="원어민 발음 듣기" disabled>
+              <svg viewBox="0 0 24 24"><path d="M3 9h4l6-5v16l-6-5H3z"/><path d="M17 9v6"/><path d="M21 6v12"/></svg>
+            </button>
             <span id="listenNote" class="note" style="margin-top:0"></span>
           </div>
         </div>
@@ -299,6 +313,7 @@
 
   async function toggleRecording(btn, idleLabel, noteEl, onBlob) {
     if (activeRecorder && activeRecorder.state === "recording") { activeRecorder.stop(); return; }
+    const iconOnly = btn.classList.contains("icon");
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
       noteEl.textContent = "마이크는 HTTPS 주소에서만 쓸 수 있어요. https:// 로 시작하는 주소로 접속해 주세요.";
       return;
@@ -320,12 +335,12 @@
       clearTimeout(timer);
       stream.getTracks().forEach(t => t.stop());
       btn.classList.remove("recording");
-      btn.textContent = idleLabel;
+      if (!iconOnly) btn.textContent = idleLabel;
       if (chunks.length) onBlob(new Blob(chunks, { type: rec.mimeType }));
     };
     rec.start();
     btn.classList.add("recording");
-    btn.textContent = "⏹ 녹음 끝내기";
+    if (!iconOnly) btn.textContent = "⏹ 녹음 끝내기";  // 아이콘 버튼은 빨간색으로만 녹음 중임을 표시
     noteEl.textContent = "녹음 중... 다 말했으면 다시 눌러 주세요 (최대 15초).";
   }
 
