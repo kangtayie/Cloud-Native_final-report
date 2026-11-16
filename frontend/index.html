@@ -56,6 +56,8 @@
   .icon:hover:not(:disabled) { background: #f1f5f9; }
   .icon:disabled { background: transparent; color: #cbd5e1; }
   .icon.recording { color: #dc2626; background: #fee2e2; animation: pulse 1.2s infinite; }
+  .icon.big { margin-top: 12px; padding: 12px; border: 1px solid var(--line); }
+  .icon.big svg { width: 40px; height: 40px; }
 
   /* 결과 칸: 번역문 크게, 그 아래 발음을 연한 글씨로 */
   .translated { flex: none; font-size: 1.6rem; line-height: 1.4; font-weight: 500; word-break: break-word; min-height: 2.2em; }
@@ -142,7 +144,9 @@
       <div>
         <h2>🎯 따라 말해 보기</h2>
         <div class="note" style="margin-top:0">원어민 발음을 듣고 똑같이 말해 보세요. 최대 15초, 다시 누르면 녹음이 끝나요.</div>
-        <button id="recBtn" class="mic">🎤 녹음 시작</button>
+        <button id="recBtn" class="icon big" title="녹음 시작 / 끝내기" aria-label="녹음 시작">
+          <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/><path d="M8 21h8"/></svg>
+        </button>
         <div id="practiceNote" class="note"></div>
       </div>
       <div>
