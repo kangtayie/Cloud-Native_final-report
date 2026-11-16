@@ -82,7 +82,7 @@
 | 1 | 텍스트 번역 (언어 선택) | Translate | `POST /translate` | 완료 (2026-11-16) |
 | 1 | 원어민 발음 듣기 | Polly | `POST /speak` | 완료 (2026-11-16) |
 | 2 | 발음 표기 (로마자 + 한글) | Bedrock | `POST /pronounce` | 완료 (웹 화면 동작 확인 2026-11-16) |
-| 3 | 음성 입력 (자국어 STT) | Transcribe + S3 | `POST /transcribe`, `GET /transcribe/{jobId}` | 미착수 |
+| 3 | 음성 입력 (자국어 STT) | Transcribe + S3 | `POST /transcribe`, `GET /transcribe/{jobId}` | 코드 완성, 배포 중 (녹음 버킷 `stt/` 폴더, 별도 람다·역할) |
 | 4 | 따라 말하기 평가 | Transcribe + S3 | `POST /practice`, `GET /practice/{jobId}` | 완료 (웹 화면 동작 확인 2026-11-16) |
 | 5 | 상황별 문장 카드 저장 | DynamoDB | `POST /cards`, `GET /cards` | 3~4단계 완료 후 결정 |
 

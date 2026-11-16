@@ -91,6 +91,12 @@ flowchart LR
 6. 완료되면 람다가 인식 결과와 정답 문장을 비교 (정규화 → 편집 거리 일치율 %, 단어별 맞음/틀림) → 화면에 점수·틀린 단어 표시
 7. 녹음 버킷은 수명주기 규칙으로 1일 후 자동 삭제 (개인 음성 보관 최소화 + 저장 비용 0에 가깝게)
 
+**음성 입력 (4단계)**
+1. [🎤 말로 입력] → 브라우저가 최대 15초 녹음 → `POST /transcribe`(녹음 base64 + 내 언어)
+2. `stt-lambda`가 녹음 버킷 `stt/`에 저장하고 Transcribe 작업을 **내 언어 코드**(예: `ko-KR`)로 시작 → `jobId` 응답
+3. 브라우저가 3초마다 `GET /transcribe/{jobId}` 확인 → 인식된 문장을 입력칸에 채움 → 사용자가 고친 뒤 번역
+4. 따라 말하기와 구조는 같지만 람다·IAM 역할·S3 폴더(`stt/` vs `practice/`)를 분리해 서로의 녹음에 접근할 수 없다
+
 ## API 경로 → 람다 → AWS 서비스 → IAM 권한
 
 | API 경로 | 람다 | 연결 AWS 서비스 | IAM 권한 (람다별 별도 역할) | 상태 |
@@ -98,7 +104,7 @@ flowchart LR
 | `POST /translate` | translate-lambda | Amazon Translate (+ Comprehend: 자동 감지 시) | `translate:TranslateText`, `comprehend:DetectDominantLanguage` | API 경유 호출 성공 (200) |
 | `POST /speak` | tts-lambda | Amazon Polly | `polly:SynthesizeSpeech`, `polly:DescribeVoices` | API 경유 호출 성공 (200, neural 음성 Ola) |
 | `POST /pronounce` | pronounce-lambda | Amazon Bedrock | `bedrock:InvokeModel` (Nova Lite 추론 프로필 `apac.amazon.nova-lite-v1:0` + 모델 ARN만) | API 경유 호출 성공 (2026-11-16) |
-| `POST /transcribe`, `GET /transcribe/{jobId}` | stt-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, `s3:PutObject`, `s3:GetObject` | 미착수 |
+| `POST /transcribe`, `GET /transcribe/{jobId}` | stt-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, 녹음 버킷 `stt/*`의 `s3:PutObject`·`s3:GetObject` | 코드 완성(`stt_lambda.py`), 미배포 |
 | `POST /practice`, `GET /practice/{jobId}` | practice-lambda | Amazon Transcribe, S3 녹음 버킷 | `transcribe:StartTranscriptionJob`, `transcribe:GetTranscriptionJob`, 녹음 버킷 `practice/*`의 `s3:PutObject`·`s3:GetObject` | 웹 화면 동작 확인 (2026-11-16, 폴란드어 일치율 표시) |
 | `/cards` | cards-lambda | DynamoDB | `dynamodb:PutItem`, `dynamodb:Query` | 가상 |
 | 공통 | 모든 람다 | CloudWatch Logs | `AWSLambdaBasicExecutionRole` | - |
